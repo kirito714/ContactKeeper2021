@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcryptjs");
 // middleWare Validator to check isEmail ect.
 const { body, validationResult, check } = require("express-validator");
+const { restart } = require("nodemon");
 
 const User = require("../models/User");
 
@@ -21,12 +23,43 @@ router.post(
       "Please enter a email with 6 or more characters"
     ).isLength({ min: 6 }),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    res.send("passed");
+    // destructure
+    const { name, email, password } = req.body;
+    try {
+      // variable to find by email
+      let user = await User.findOne({ email });
+      // if to check if user exists
+      if (user) {
+        // if user exists then send status 400 and msg: User already exits
+        return res.status(400).json({ msg: "User already exists" });
+      }
+      //creat new user
+      user = new User({
+        name,
+        email,
+        //plain text password. before bcrypt.hash
+        password,
+      });
+
+      //variable salt that bcrypt.getSalt that returns a promise to encrypt a password. 10 is default
+      const salt = bcrypt.genSaltSync(10);
+      // user.password(plain text) and bcrypt.hash
+      // hash takes in the password and salt to hash the password
+      user.password = await bcrypt.hashSync(password, salt);
+
+      // takes in promise await and saves user
+      await user.save();
+
+      res.send("user Saved");
+    } catch (err) {
+      console.log(err.message);
+      res.status(500).send("Server Error");
+    }
   }
 );
 
