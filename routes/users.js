@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
+// JWT three parts Header&tokenType/Payload/VerifySignature
+const jwt = require("jsonwebtoken");
+const config = require("config");
 // middleWare Validator to check isEmail ect.
-const { body, validationResult, check } = require("express-validator");
-const { restart } = require("nodemon");
+const { validationResult, check } = require("express-validator");
 
 const User = require("../models/User");
 
@@ -54,8 +56,27 @@ router.post(
 
       // takes in promise await and saves user
       await user.save();
-
-      res.send("user Saved");
+      // payload we want to send a obj of user.id in the token
+      const payload = {
+        user: {
+          id: user.id,
+        },
+      };
+      // sign w/payload, secrete from config/default.json
+      jwt.sign(
+        // payload
+        payload,
+        //get jwtSecrete
+        config.get("jwtSecret"),
+        // sets the time to expire
+        {
+          expiresIn: 360000,
+        },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token });
+        }
+      );
     } catch (err) {
       console.log(err.message);
       res.status(500).send("Server Error");

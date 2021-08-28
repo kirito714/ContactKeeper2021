@@ -1,3 +1,4 @@
 {
-  "mongoURI": "mongodb+srv://kirito714:123Joe456!@cluster0.g0mrd.mongodb.net/ContactTracker?retryWrites=true&w=majority"
+  "mongoURI": "mongodb+srv://kirito714:123Joe456!@cluster0.g0mrd.mongodb.net/ContactTracker?retryWrites=true&w=majority",
+  "jwtSecret": "secret"
 }
