@@ -30,7 +30,7 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    // destructure
+    // destructuring
     const { name, email, password } = req.body;
     try {
       // variable to find by email
