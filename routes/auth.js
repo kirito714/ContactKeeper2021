@@ -7,6 +7,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 // for the secret
 const config = require("config");
+// brings in the middleware auth
+const auth = require("../middleware/auth");
 // middleWare Validator to check isEmail ect.
 const { validationResult, check } = require("express-validator");
 
@@ -15,8 +17,17 @@ const User = require("../models/User");
 //@route  GET api/Auth
 //@desc   Get Logged in USer
 //@access Private
-router.get("/", (req, res) => {
-  res.send("Get logged in user");
+router.get("/", auth, async (req, res) => {
+  try {
+    // variable that returns a promise to find the user by the ID
+    // Id is found by the req token object "req.user.id"
+    // .select to minus the password even tho its encrypted we dont want to return that.
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
 });
 
 //@route  POST api/Auth
