@@ -11,7 +11,7 @@ module.exports = function (req, res, next) {
 
   try {
     // variable to verify the token and get the jwt Secret
-    const decoded = jwt.verify(token, config("jwtSecret"));
+    const decoded = jwt.verify(token, config.get("jwtSecret"));
     // pull out decoded.user and set it to a variable req.user
     // so we have access to this inside the route.
     req.user = decoded.user;
